@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=DM+Sans:wght@400;500;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+	:root {
+		--color-primary: #036c48;
+		--color-primary-light: #c7f7d4;
+		--color-secondary: #000000;
+		--color-secondary-light: rgba(53, 52, 52, 0.27);
+		--color-text: #000000;
+		--color-text-light: rgba(53, 52, 52, 0.47);
+		--font-display: 'DM Sans';
+		--font-body: 'Inter';
+		--btn-radius-default: 9999px;
+	}
+}
+.container {
+	display: block;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 20px;
+}

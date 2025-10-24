@@ -1,0 +1,1 @@
+export default '<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 13"><circle cx="2.167" cy="2.167" r="2.167" fill="currentColor"/><circle cx="10.835" cy="2.167" r="2.167" fill="currentColor" fill-opacity=".6"/><circle cx="2.167" cy="10.833" r="2.167" fill="currentColor" fill-opacity=".6"/><circle cx="10.835" cy="10.833" r="2.167" fill="currentColor"/></svg>';
