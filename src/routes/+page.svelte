@@ -23,9 +23,7 @@
 		doneTasks = [...result.doneTasksRef];
 	};
 	const updateTask = (updatedTask: Task) => {
-		console.log('change111', updatedTask);
 		tasks = tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task));
-		console.log('change22', updatedTask);
 	};
 </script>
 
