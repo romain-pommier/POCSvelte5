@@ -1,27 +1,20 @@
 <script lang="ts">
-	import {
-		ButtonBoxPrimary,
-		Form,
-		InputText,
-		InputNumber,
-		InputFile,
-		InputEmail
-	} from '@wiseed/wikit';
-	import { slide } from 'svelte/transition';
+	import { ButtonBoxPrimary, Form, InputText, InputNumber, InputFile } from '@wiseed/wikit';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { z } from 'zod';
+	import { json, z } from 'zod';
+	import { slide } from 'svelte/transition';
 	const formulaires = [
 		{
 			id: 1,
 			title: 'formulaire1',
 			inputs: [
-				{ name: 'name', label: 'Nom', component: InputText },
-				{ name: 'email', label: 'email', component: InputEmail }
+				{ name: 'name', label: 'Nom', component: InputText }
+				// { name: 'email', label: 'email', component: InputEmail }
 			],
 			schema: z.object({
-				name: z.string().min(2).default('Hello world!'),
-				email: z.email()
+				name: z.string().min(2)
+				// email: z.email()
 			})
 		},
 		{
@@ -49,44 +42,62 @@
 	const currentForm = $derived.by(() => {
 		return formulaires[currentFormIndex];
 	});
+	let action = $state('');
+	let SPA = $state(false);
 
-	let { form, errors, constraints, enhance, message } = superForm(currentForm.schema, {
-		SPA: true,
-		resetForm: false,
+	let { form, enhance, message, validateForm } = superForm(currentForm.schema, {
+		resetForm: true,
 		clearOnSubmit: 'errors-and-message',
 		dataType: 'json',
 		validators: zod4(currentForm.schema),
-		async onUpdate({ form }) {
-			console.log('form', form);
-			if (!form.valid) {
-				form.message = {
-					status: 400,
-					text: 'Formulaire non valide'
-				};
-				console.log('superFormData', form);
+		async onSubmit({ cancel, jsonData }) {
+			if (!action) {
+				const result = await validateForm({ update: true });
+				if (result.valid) {
+					nextStep();
+				} else {
+					form.message = { status: 400, text: 'Formulaire non valide' };
+				}
+				cancel();
 			} else {
-				submitFunction(form);
+				jsonData({});
+			}
+		},
+		async onUpdated({ form }) {
+			if (form.valid) {
+				nextStep();
+			} else {
+				form.message = {
+					status: form.message?.status || 400,
+					text: form.message?.text || 'Formulaire non valide'
+				};
 			}
 		}
 	});
-	const submitFunction = () => {
+	const nextStep = () => {
 		currentFormIndex = currentFormIndex + 1;
 	};
+	$effect(() => {
+		SPA = currentFormIndex !== 1;
+		action = currentFormIndex === 1 ? '/formulaire' : '';
+	});
+	$inspect($message);
 </script>
 
-<h1>Formulaire</h1>
+<h1>Formulaire multi-étapes</h1>
 
 {#if $message}
 	<div class="status" class:error={$message.status >= 400} class:success={$message.status == 200}>
 		{$message.text}
 	</div>
 {/if}
+
 <div class="container">
 	{#if currentForm}
 		<h2>{currentForm.title}</h2>
-		{#key currentForm}
-			<Form {enhance}>
-				<div transition:slide={{ duration: 1400, axis: 'x' }}>
+		{#key currentForm.inputs}
+			<Form {enhance} {action}>
+				<div transition:slide={{ duration: 600, axis: 'x' }}>
 					{#each currentForm.inputs as input}
 						{@const InputComponent = input.component}
 						<InputComponent {...input} />
@@ -100,21 +111,18 @@
 
 <style lang="postcss">
 	.status {
-		position: absolute;
+		position: fixed;
 		bottom: 20px;
+		left: 50%;
+		transform: translateX(-50%);
 		color: white;
-		padding: 4px;
-		padding-left: 8px;
-		border-radius: 2px;
+		padding: 6px 12px;
+		border-radius: 4px;
 		font-weight: 500;
-		width: 100%;
-		height: 100px;
 	}
-
 	.status.success {
 		background-color: seagreen;
 	}
-
 	.status.error {
 		background-color: #ff2a02;
 	}
